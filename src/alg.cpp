@@ -1,8 +1,8 @@
 // Copyright 2022 NNTU-CS
 #include <algorithm>
+#include <vector>
 #include <stdexcept>
-#include <cmath>
-#include  "tree.h"
+#include "tree.h"
 
 PMTree::PMTree(const std::vector<char>& elements) {
     if (elements.empty()) {
@@ -54,6 +54,7 @@ void PMTree::getAllPermsRecursive(std::shared_ptr<Node> node, std::vector<char>&
             getAllPermsRecursive(child, current, result);
         }
     }
+    
     current.pop_back();
 }
 
@@ -87,6 +88,14 @@ std::vector<char> PMTree::getPermByTraversal(int num) {
     return allPerms[num - 1];
 }
 
+int factorial(int n) {
+    int result = 1;
+    for (int i = 2; i <= n; ++i) {
+        result *= i;
+    }
+    return result;
+}
+
 std::vector<char> PMTree::getPermByNavigation(int num) {
     if (num < 1 || !root || root->children.empty()) {
         return std::vector<char>();
@@ -96,21 +105,12 @@ std::vector<char> PMTree::getPermByNavigation(int num) {
     std::vector<char> result;
     std::shared_ptr<Node> current = root;
     
-    while (current->children.size() > 0) {
+    int levelsLeft = numElements;
+    
+    while (current->children.size() > 0 && levelsLeft > 0) {
         int childrenCount = current->children.size();
 
-        int blockSize = 1;
-        int levelsLeft = 0;
-
-        std::shared_ptr<Node> temp = current->children[0];
-        while (temp && !temp->children.empty()) {
-            levelsLeft++;
-            temp = temp->children[0];
-        }
-
-        for (int i = 1; i <= levelsLeft + 1; i++) {
-            blockSize *= i;
-        }
+        int blockSize = factorial(levelsLeft - 1);
 
         int childIndex = remaining / blockSize;
         
@@ -121,12 +121,8 @@ std::vector<char> PMTree::getPermByNavigation(int num) {
         result.push_back(current->children[childIndex]->value);
         remaining = remaining % blockSize;
         current = current->children[childIndex];
+        levelsLeft--;
     }
-
-    if (current->children.empty() && current->value != '\0') {
-        result.push_back(current->value);
-    }
-    
     return result;
 }
 
@@ -139,9 +135,5 @@ std::vector<char> getPerm2(PMTree& tree, int num) {
 }
 
 int PMTree::getTotalPermutations() const {
-    int result = 1;
-    for (int i = 1; i <= numElements; i++) {
-        result *= i;
-    }
-    return result;
+    return factorial(numElements);
 }
