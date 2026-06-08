@@ -1,6 +1,7 @@
 // Copyright 2022 NNTU-CS
 #include <algorithm>
 #include <memory>
+#include <vector>
 #include "tree.h"
 
 PMTree::PMTree(const std::vector<char>& elements) {
